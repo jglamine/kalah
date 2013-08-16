@@ -76,15 +76,25 @@ func assertBoard(t *testing.T, b Board, cells []byte) {
 	}
 }
 
+func assertWhoseMove(t *testing.T, b Board, expectedPlayer playerId) {
+	if b.WhoseTurn() != expectedPlayer {
+		t.Fatalf("Current player mismatch: got %v, expected: %v", b.WhoseTurn(),
+			expectedPlayer)
+	}
+}
+
 //TestMove tests the board.Move function.
 func TestMove(t *testing.T) {
 	b := MakeBoard(PlayerOne)
+	assertWhoseMove(t, b, PlayerOne)
 	assertBoard(t, b, []byte{4, 4, 4, 4, 4, 4, 0,
 							 4, 4, 4, 4, 4, 4, 0})
 	assertMove(t, b, 0, 0, true)
+	assertWhoseMove(t, b, PlayerTwo)
 	assertBoard(t, b, []byte{0, 5, 5, 5, 5, 4, 0,
 							4, 4, 4, 4, 4, 4, 0})
 	assertMove(t, b, 3, 0, false)
+	//assertWhoseMove(t, b, PlayerTwo)
 	assertBoard(t, b, []byte{0, 5, 5, 5, 5, 4, 0,
 							4, 4, 4, 4, 4, 4, 0})
 	assertMove(t, b, 9, 0, true)

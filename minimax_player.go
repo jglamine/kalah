@@ -14,6 +14,6 @@ func (this *minimaxPlayer) ChooseMove(b Board) byte {
 	//       this can be accomplished with transposition tables
 	// TODO: time limited iterative deepening
 	tree := makeGameTree(b)
-	move, _ := tree.BestMove(3)
+	move, _ := tree.BestMove(10)
 	return move
 }

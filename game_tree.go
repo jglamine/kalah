@@ -1,6 +1,9 @@
 package kalah
 
-import "math"
+import (
+		"math"
+		
+		)
 
 // gameState is a struct used to hold game states in nodes
 // it is used internally in the gameTree graph structure
@@ -52,12 +55,12 @@ func (this gameState) value() int64 {
 
 func makeGameNode(move byte, parentState *gameState) *gameNode {
 	node := new(gameNode)
-	state := new(gameState)
-	state.playerToMove = parentState.playerToMove
-	state.cells = parentState.cells
-	state.Move(move)
-	node.state = state
+	node.state = new(gameState)
+	node.state.cells = make([]byte, numCells)
+	copy(node.state.cells, parentState.cells)
+	node.state.playerToMove = parentState.playerToMove
 	node.move = move
+	node.state.Move(move)
 	return node
 }
 
@@ -75,11 +78,9 @@ func makeChildren(state *gameState) []*gameNode {
 		upperMove = kalahTwo - 1
 	}
 	children := make([]*gameNode, 0, upperMove - lowerMove)
-	childIndex := 0
 	for move := lowerMove; move <= upperMove; move++ {
 		if state.LegalMove(move) {
-			children[childIndex] = makeGameNode(move, state)
-			childIndex++
+			children = append(children, makeGameNode(move, state))
 		}
 	}
 	return children
