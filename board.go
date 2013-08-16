@@ -13,8 +13,8 @@ const(
 	numCells = byte(14)
 	kalahOne = (numCells -1) / 2 // 6
 	kalahTwo = numCells -1 // 13
-	PlayerOne = playerId(1)
-	PlayerTwo = playerId(0)
+	PlayerOne = playerId(0)
+	PlayerTwo = playerId(1)
 	PlayerTie = playerId(2)
 )
 
@@ -37,12 +37,13 @@ type board struct {
 }
 
 func (b board) LegalMove(cell byte) bool {
-	if b.playerToMove == PlayerOne && cell >= 0 && cell < kalahOne &&
-		b.cells[cell] != byte(0) {
-		return true
+	if b.playerToMove == PlayerOne {
+		if cell >= byte(0) && cell < kalahOne && b.cells[cell] != byte(0) {
+			return true
+		}
+		return false
 	}
-	if b.playerToMove == PlayerTwo && cell > kalahOne && cell < kalahTwo &&
-		b.cells[cell] != byte(0) {
+	if cell > kalahOne && cell < kalahTwo && b.cells[cell] != byte(0) {
 		return true
 	}
 	return false
@@ -75,10 +76,11 @@ func (b board) Winner() playerId {
 func (b board) Score() (p1Score, p2Score byte) {
 	p1Score = byte(0)
 	p2Score = byte(0)
-	for _, cell := range b.cells[0:kalahOne] {
+	// TODO: combine two loops into one
+	for _, cell := range b.cells[0:kalahOne+1] {
 		p1Score += cell
 	}
-	for _, cell := range b.cells[kalahOne+1:kalahTwo] {
+	for _, cell := range b.cells[kalahOne+1:kalahTwo+1] {
 		p2Score += cell
 	}
 	return
@@ -86,17 +88,17 @@ func (b board) Score() (p1Score, p2Score byte) {
 
 // Move executes a move in a cell for the current player
 // The number of stones captured and an error flag are returned.
-func (b board) Move(cell byte) (numCaptured byte, ok bool) {
-	if !b.LegalMove(cell) {
-		return byte(0), false
-	}
+func (b *board) Move(cell byte) (numCaptured byte, ok bool) {
 	numCaptured = byte(0)
+	if !b.LegalMove(cell) {
+		return numCaptured, false
+	}
 	// pick up the stones
 	stones := b.cells[cell]
 	b.cells[cell] = byte(0)
 	// distribute stones around the board
 	pos := cell+1
-	for ; stones > 0; pos++ {
+	for ; stones > byte(0); pos++ {
 		// don't add stone to opponents kalah
 		if b.playerToMove == PlayerOne && pos == kalahTwo {
 			pos++
@@ -104,7 +106,7 @@ func (b board) Move(cell byte) (numCaptured byte, ok bool) {
 			pos++
 		}
 		if pos == numCells {
-			pos = 0
+			pos = byte(0)
 		}
 		b.cells[pos]++
 		stones--

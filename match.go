@@ -22,6 +22,7 @@ func RunMatch(playerOne Player, playerTwo Player, firstMove playerId,
 		fmt.Println(b)
 	}
 	// main game loop
+	var ok bool
 	move := byte(0)
 	for !b.GameOver() {
 		if verbose {
@@ -38,7 +39,13 @@ func RunMatch(playerOne Player, playerTwo Player, firstMove playerId,
 				fmt.Println(playerTwo, "chooses move", move)
 			}
 		}
-		b.Move(move)
+		_, ok = b.Move(move)
+		if !ok {
+			fmt.Printf("Error: the move was invalid")
+			// TODO: return a status code
+			return 0, 0
+		}
+
 		if verbose { fmt.Println(b) }
 	}
 	score1, score2 := b.Score()
