@@ -13,7 +13,7 @@ func MakeHumanPlayer(name string) Player {
 	return &p
 }
 
-func (this *humanPlayer) ChooseMove(b Board) byte {
+func (this *humanPlayer) ChooseMove(b Board) (move byte, depth int) {
 	// TODO: read as byte instead of int
 	moveInt := int(kalahOne) // initialize to an invalid move
 	for !b.LegalMove(byte(moveInt)) {
@@ -25,5 +25,5 @@ func (this *humanPlayer) ChooseMove(b Board) byte {
 			fmt.Printf("Illegal move: %d. Try again.\n", moveInt)
 		}
 	}
-	return byte(moveInt)
+	return byte(moveInt), -1
 }

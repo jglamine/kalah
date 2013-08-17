@@ -23,21 +23,36 @@ func RunMatch(playerOne Player, playerTwo Player, firstMove playerId,
 	}
 	// main game loop
 	var ok bool
+	var depth int
+	var p1Moves int
+	var p2Moves int
+	var p1DepthSum int
+	var p2DepthSum int
 	move := byte(0)
 	for !b.GameOver() {
 		if verbose {
 			fmt.Println("")
 		}
 		if b.WhoseTurn() == PlayerOne {
-			move = playerOne.ChooseMove(b)
+			move, depth = playerOne.ChooseMove(b)
+			p1Moves++
+			p1DepthSum += depth
 			if verbose {
-				fmt.Println(playerOne, "chooses move", move)
+				fmt.Printf("%v chooses move %v", playerOne, move)
 			}
 		} else {
-			move = playerTwo.ChooseMove(b)
+			move, depth = playerTwo.ChooseMove(b)
+			p2Moves++
+			p2DepthSum += depth
 			if verbose {
-				fmt.Println(playerTwo, "chooses move", move)
+				fmt.Printf("%v chooses move %v", playerTwo, move)
 			}
+		}
+		if verbose {
+			if depth >= 0 {
+				fmt.Printf(" (depth %v)", depth)
+			}
+			fmt.Println("")
 		}
 		_, ok = b.Move(move)
 		if !ok {
@@ -58,6 +73,14 @@ func RunMatch(playerOne Player, playerTwo Player, firstMove playerId,
 				score2, "to", score1)
 		} else {
 			fmt.Println("Tie game:", score1, "to", score2)
+		}
+		if p1DepthSum >= 0 {
+			fmt.Printf("%v depth average: %v\n", playerOne,
+				float64(p1DepthSum) / float64(p1Moves))
+		}
+		if p2DepthSum >= 0 {
+			fmt.Printf("%v depth average: %v\n", playerTwo,
+				float64(p2DepthSum) / float64(p2Moves))
 		}
 	}
 	return score1, score2

@@ -16,11 +16,11 @@ func MakeMinimaxPlayer(name string, timeLimit time.Duration,
 	return &p
 }
 
-func (this *minimaxPlayer) ChooseMove(b Board) byte {
+func (this *minimaxPlayer) ChooseMove(b Board) (move byte, depth int) {
 	// TODO: keep tree between moves and resume search
 	//       this can be accomplished with transposition tables
 	// TODO: time limited iterative deepening
 	tree := makeGameTree(b)
-	move, _ := tree.BestMove(this.timeLimit, this.depthLimit)
-	return move
+	move, depth = tree.BestMove(this.timeLimit, this.depthLimit)
+	return move, depth
 }
