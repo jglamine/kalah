@@ -76,6 +76,7 @@ func (b board) Winner() playerId {
 func (b board) Score() (p1Score, p2Score byte) {
 	p1Score = byte(0)
 	p2Score = byte(0)
+	// TODO: combine two loops into one
 	for _, cell := range b.cells[0:kalahOne+1] {
 		p1Score += cell
 	}

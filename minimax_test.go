@@ -2,6 +2,7 @@ package kalah
 
 import (
 	"testing"
+	"time"
 	)
 
 func TestMakeGameNode(t* testing.T) {
@@ -43,4 +44,20 @@ func TestMakeChildren(t *testing.T) {
 	}
 }
 
+// TestConsistent makes sure that minimax consistently gives the same result
+// when playing on different halves of the board.
+func TestConsistent(t* testing.T) {
+	p1 := MakeMinimaxPlayer("Minimax (depth 3)", time.Duration(120)*time.Second, 3)
+	p2 := MakeMinimaxPlayer("Minimax (depth 1)", time.Duration(60)*time.Millisecond, 1)
+	p1Score1, p2Score1 := RunMatch(p1, p2, PlayerOne, true)
+	p2Score2, p1Score2 := RunMatch(p2, p1, PlayerTwo, false)
+	if p1Score1 != p1Score2 || p2Score1 != p2Score2 {
+		t.Errorf("Scores do not match:\ngame 1: %v to %v\ngame2: %v to %v",
+			p1Score1, p2Score1, p1Score2, p2Score2)
+	}
+	if p1Score1 <= p2Score1 || p1Score2 <= p2Score2 {
+		t.Errorf("%v lost to %v\ngame 1: %v to %v\ngame 2: %v to %v",
+			p1, p2, p1Score1, p2Score1, p1Score2, p2Score2)
+	}
+}
 // TODO: test minimax algorithm for correctness
