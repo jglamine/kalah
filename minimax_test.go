@@ -45,7 +45,8 @@ func TestMakeChildren(t *testing.T) {
 }
 
 // TestConsistent makes sure that minimax consistently gives the same result
-// when playing on different halves of the board.
+// when playing on different halves of the board. It also checks that it is
+// able to beat randomly chosen moves.
 func TestConsistent(t* testing.T) {
 	p1 := MakeMinimaxPlayer("Minimax (depth 3)", time.Duration(120)*time.Second, 3)
 	p2 := MakeMinimaxPlayer("Minimax (depth 1)", time.Duration(60)*time.Millisecond, 1)
@@ -60,4 +61,21 @@ func TestConsistent(t* testing.T) {
 			p1, p2, p1Score1, p2Score1, p1Score2, p2Score2)
 	}
 }
-// TODO: test minimax algorithm for correctness
+
+// BenchmarkMinimax measures how quickly minimax runs
+func BenchmarkMinimaxMatch(b *testing.B) {
+    for i := 0; i < b.N; i++ {
+        p1 := MakeMinimaxPlayer("Minimax (depth 5)", time.Duration(120)*time.Second, 5)
+		p2 := MakeMinimaxPlayer("Random", time.Duration(0), 0)
+		RunMatch(p1, p2, PlayerOne, false)
+    }
+}
+
+// BenchmarkSearch measures the speed of a single minimax search
+func BenchmarkSearch(b *testing.B) {
+	depthLimit := 10
+	tree := makeGameTree(MakeBoard(PlayerTwo))
+	for i := 0; i < b.N; i++ {
+		tree.search(depthLimit, time.Now().Add(time.Duration(120)*time.Second))
+	}
+}
