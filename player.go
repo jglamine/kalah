@@ -3,7 +3,7 @@ package kalah
 // Player is an interface for a kalah player.
 // To implement the Player interface, subtype player and implement ChooseMove()
 type Player interface {
-	ChooseMove(b Board) byte
+	ChooseMove(b Board) (move byte, depth int)
 	String() string
 }
 
@@ -24,33 +24,33 @@ func MakeBozoPlayer(name string) Player {
 	return &player
 }
 
-func (this *player) String() string {
+func (this player) String() string {
 	return this.name
 }
 
 // ChooseMove is bozo's basic kalah AI
 // It tries to chooses a move which lets it go again, defaulting the the first
 // available move.
-func (this *bozoPlayer) ChooseMove(b Board) byte {
+func (this *bozoPlayer) ChooseMove(b Board) (move byte, depth int) {
 	if b.WhoseTurn() == PlayerOne {
 		// try to find a go-again move
 		for i := kalahOne-1; i != byte(255); i-- {
-			if b.Cell(i) == kalahOne-i { return i }
+			if b.Cell(i) == kalahOne-i { return i, -1 }
 		}
 		// otherwise, use first available move
 		for i := kalahOne-1; i != byte(255); i-- {
-			if b.Cell(i) > byte(0) { return i }
+			if b.Cell(i) > byte(0) { return i, -1 }
 		}
 	} else {
 		// try to find a go-again move
 		for i := kalahTwo-1; i > kalahOne; i-- {
-			if b.Cell(i) == kalahTwo-i { return i }
+			if b.Cell(i) == kalahTwo-i { return i, -1 }
 		}
 		for i := kalahTwo-1; i > kalahOne; i-- {
-			if b.Cell(i) > byte(0) { return i }
+			if b.Cell(i) > byte(0) { return i, -1 }
 		}
 	}
 	// if no legal moves are found, return an illegal one
 	// this can not happen unless the game is over
-	return kalahOne
+	return kalahOne, -1
 }

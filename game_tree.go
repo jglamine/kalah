@@ -20,6 +20,8 @@ type gameTree struct {
 // gameNode - the nodes which make up a gameTree graph structure
 type gameNode struct {
 	state *gameState
+	leafReached bool
+	value int64
 	children []*gameNode
 	move byte
 }
@@ -59,6 +61,7 @@ func makeGameNode(move byte, parentState *gameState) *gameNode {
 	copy(node.state.cells, parentState.cells)
 	node.state.playerToMove = parentState.playerToMove
 	node.move = move
+	node.leafReached = false
 	node.state.Move(move)
 	return node
 }
@@ -87,28 +90,33 @@ func makeChildren(state *gameState) []*gameNode {
 
 func (this gameTree) BestMove(timeLimit time.Duration, depthLimit int) (move byte, depth int) {
 	move = kalahOne  // initialize to invalid move
-	prevMove := this.search(0, time.Now())
+	prevMove, _ := this.search(0, time.Now()) // initialize to first valid move
 	deadline := time.Now().Add(timeLimit)
-	for depth = 1; time.Now().Before(deadline) && ( depthLimit < 0 || depth <= depthLimit); depth++ {
+	var done bool = false
+	for depth = 1; !done && time.Now().Before(deadline) && ( depthLimit < 0 || depth <= depthLimit); depth++ {
 		prevMove = move
-		move = this.search(depth, deadline)
+		move, done = this.search(depth, deadline)
 	}
-	if depth == depthLimit+1 && time.Now().Before(deadline) {
+	if done || (depth == depthLimit+1 && time.Now().Before(deadline)) {
 		return move, depth-1
 	}
 	return prevMove, depth-1
 }
 
-func (this gameTree) search(depthLimit int, deadline time.Time) (move byte) {
+// search runs a depth and time limited minimax search on the gameTree
+// returns:
+//   move (byte) - the best move
+//   leafReached (bool) - true if the entire game tree was searched
+func (this gameTree) search(depthLimit int, deadline time.Time) (move byte, leafReached bool) {
 	if depthLimit < 1 || time.Now().After(deadline) {
 		// return the first valid move
 		for move = byte(0); move < numCells; move++ {
 			if this.root.state.LegalMove(move) {
-				return move
+				return move, false
 			}
 		}
 		// default to an invalid move
-		return kalahOne
+		return kalahOne, false
 	}
 	var alpha int64 = math.MinInt64
 	var beta int64 = math.MaxInt64
@@ -117,65 +125,95 @@ func (this gameTree) search(depthLimit int, deadline time.Time) (move byte) {
 	}
 	if len(this.root.children) == 0 {
 		// no valid moves, return an invalid move
-		return kalahOne
+		return kalahOne, true
 	}
 	var result int64
 	var maximize bool
+	this.root.leafReached = true
 	for _, child := range this.root.children {
 		maximize = this.root.state.WhoseTurn() == child.state.WhoseTurn()
-		result = minimax(child, alpha, beta, depthLimit - 1, maximize,
+		result, leafReached = minimax(child, alpha, beta, depthLimit - 1, maximize,
 			deadline)
 		if result > alpha {
 			alpha = result
 			move = child.move
 		}
+		if !leafReached {
+			this.root.leafReached = false
+		}
 		// TODO: try moving inside above if statement
 		if alpha >= beta {
-			return move
+			break
 		}
 	}
-	return move
+	return move, this.root.leafReached
 }
 
 // minimax does minimax search with alpha beta pruning on a gameNode
-// it returns the value of the given node
 // depth limited breadth first search is used
 // if maximize is true, maximize the score
+// returns:
+//    value (int64): the value of node
+//    leafReached (bool): true if the branch was completely traversed
 func minimax(node *gameNode, alpha int64, beta int64, depth int, maximize bool,
-	deadline time.Time) (value int64) {
+	deadline time.Time) (value int64, leafReached bool) {
+	if node.leafReached {
+		return node.value, true
+	}
 	if depth == 0 || time.Now().After(deadline) {
-		return node.state.value(maximize)
+		return node.state.value(maximize), false
 	}
 	if node.children == nil {
 		node.children = makeChildren(node.state)
 	}
 	if len(node.children) == 0 {
-		return node.state.value(maximize)
+		node.value = node.state.value(maximize)
+		node.leafReached = true
+		return node.value, true
 	}
 	var result int64
+	node.leafReached = true
 	if maximize {
 		for _, child := range node.children {
 			maximize = node.state.WhoseTurn() == child.state.WhoseTurn()
-			result = minimax(child, alpha, beta, depth-1, maximize, deadline)
+			result, leafReached = minimax(child, alpha, beta, depth-1, maximize, deadline)
+			if leafReached {
+				child.children = nil
+			} else {
+				node.leafReached = false
+			}
 			if result > alpha {
 				alpha = result
 			}
 			if alpha >= beta {
-				return alpha
+				break
 			}
 		}
-		return alpha
+		if node.leafReached {
+			node.value = alpha
+			return alpha, true
+		}
+		return alpha, false
 	} else {
 		for _, child := range node.children {
 			maximize = node.state.WhoseTurn() != child.state.WhoseTurn()
-			result = minimax(child, alpha, beta, depth-1, maximize, deadline)
+			result, leafReached = minimax(child, alpha, beta, depth-1, maximize, deadline)
+			if leafReached {
+				child.children = nil
+			} else {
+				node.leafReached = false
+			}
 			if result < beta {
 				beta = result
 			}
 			if beta <= alpha {
-				return beta
+				break
 			}
 		}
-		return beta
+		if node.leafReached {
+			node.value = beta
+			return beta, true
+		}
+		return beta, false
 	}
 }

@@ -9,7 +9,7 @@ func TestBozo(t *testing.T) {
 					4, 4, 4, 4, 4, 4, 0}
 	b := MakeBoardFromCells(PlayerOne, cells)
 	bozo := MakeBozoPlayer("Bozo")
-	move := bozo.ChooseMove(b)
+	move, _ := bozo.ChooseMove(b)
 	if move != byte(5) {
 		t.Error("Move test 1: expected 5, got", move)
 	}
