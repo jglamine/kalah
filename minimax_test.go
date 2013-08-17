@@ -65,7 +65,7 @@ func TestConsistent(t* testing.T) {
 // BenchmarkMinimax measures how quickly minimax runs
 func BenchmarkMinimaxMatch(b *testing.B) {
     for i := 0; i < b.N; i++ {
-        p1 := MakeMinimaxPlayer("Minimax (depth 5)", time.Duration(120)*time.Second, 5)
+        p1 := MakeMinimaxPlayer("Minimax (depth 7)", time.Duration(120)*time.Second, 7)
 		p2 := MakeMinimaxPlayer("Random", time.Duration(0), 0)
 		RunMatch(p1, p2, PlayerOne, false)
     }
