@@ -89,7 +89,7 @@ func (this gameTree) BestMove(timeLimit time.Duration, depthLimit int) (move byt
 	move = kalahOne  // initialize to invalid move
 	prevMove := this.search(0, time.Now())
 	deadline := time.Now().Add(timeLimit)
-	for depth = 1; time.Now().Before(deadline) && depth <= depthLimit; depth++ {
+	for depth = 1; time.Now().Before(deadline) && ( depthLimit < 0 || depth <= depthLimit); depth++ {
 		prevMove = move
 		move = this.search(depth, deadline)
 	}
