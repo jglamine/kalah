@@ -49,7 +49,7 @@ func TestMakeChildren(t *testing.T) {
 // able to beat randomly chosen moves.
 func TestConsistent(t* testing.T) {
 	p1 := MakeMinimaxPlayer("Minimax (depth 3)", time.Duration(120)*time.Second, 3)
-	p2 := MakeMinimaxPlayer("Minimax (depth 1)", time.Duration(60)*time.Millisecond, 1)
+	p2 := MakeMinimaxPlayer("Minimax (depth 1)", time.Duration(120)*time.Second, 1)
 	p1Score1, p2Score1 := RunMatch(p1, p2, PlayerOne, false)
 	p2Score2, p1Score2 := RunMatch(p2, p1, PlayerTwo, false)
 	if p1Score1 != p1Score2 || p2Score1 != p2Score2 {
