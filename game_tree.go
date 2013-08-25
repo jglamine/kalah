@@ -49,9 +49,9 @@ func boardToState(b Board) (s *gameState) {
 func (this gameState) value(maximize bool) int64 {
 	p1Score, p2Score := this.Score()
 	if (this.WhoseTurn() == PlayerOne) == maximize {
-		return int64(p1Score - p2Score)
+		return int64(p1Score) - int64(p2Score)
 	}
-		return int64(p2Score - p1Score)
+		return int64(p2Score) - int64(p1Score)
 }
 
 func makeGameNode(move byte, parentState *gameState) *gameNode {
