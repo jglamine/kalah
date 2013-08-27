@@ -65,7 +65,7 @@ func TestConsistent(t* testing.T) {
 // BenchmarkMinimax measures how quickly minimax runs
 func BenchmarkMinimaxMatch(b *testing.B) {
     for i := 0; i < b.N; i++ {
-        p1 := MakeMinimaxPlayer("Minimax (depth 7)", time.Duration(120)*time.Second, 7)
+        p1 := MakeMinimaxPlayer("Minimax (depth 7)", time.Duration(120)*time.Second, 13)
 		p2 := MakeMinimaxPlayer("Random", time.Duration(0), 0)
 		RunMatch(p1, p2, PlayerOne, false)
     }
@@ -73,7 +73,7 @@ func BenchmarkMinimaxMatch(b *testing.B) {
 
 // BenchmarkSearch measures the speed of a single minimax search
 func BenchmarkSearch(b *testing.B) {
-	depthLimit := 10
+	depthLimit := 13
 	tree := makeGameTree(MakeBoard(PlayerTwo))
 	for i := 0; i < b.N; i++ {
 		tree.search(depthLimit, time.Now().Add(time.Duration(120)*time.Second))
